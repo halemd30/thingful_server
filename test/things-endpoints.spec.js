@@ -25,7 +25,7 @@ describe('Things Endpoints', function() {
 
   afterEach('cleanup', () => helpers.cleanTables(db))
 
-  describe.only('Protected endpoints', () => {
+  describe('Protected endpoints', () => {
     beforeEach('Insert things', () => 
       helpers.seedThingsTables(
         db, 
@@ -48,9 +48,11 @@ describe('Things Endpoints', function() {
 
     protectedEndpoints.forEach(endpoint => {
       describe(endpoint.name, () => {
+        // ERROR insert into 'thingful_reviews' violates foreign key constraint 'thingful_reviews_thing_id_fkey'
         it(`responds with 401 'Missing bearer token' when no basic token`, () => {
           return supertest(app)
             .get(endpoint.path)
+            //.then(res => console.log('***** missing bearer token *****', res))
             .expect(401, { error: `Missing bearer token` })
         })
 
@@ -91,7 +93,7 @@ describe('Things Endpoints', function() {
           testReviews,
         )
       )
-
+      // ERROR insert into 'thingful_reviews' violates foreign key constraint 'thingful_reviews_thing_id_fkey'
       it('responds with 200 and all of the things', () => {
         const expectedThings = testThings.map(thing =>
           helpers.makeExpectedThing(
@@ -143,6 +145,7 @@ describe('Things Endpoints', function() {
         const thingId = 123456
         return supertest(app)
           .get(`/api/things/${thingId}`)
+          .set('Authorization', helpers.makeAuthHeader(testUsers[0]))
           .expect(404, { error: `Thing doesn't exist` })
       })
     })
@@ -189,6 +192,7 @@ describe('Things Endpoints', function() {
       it('removes XSS attack content', () => {
         return supertest(app)
           .get(`/api/things/${maliciousThing.id}`)
+          .set('Authorization', helpers.makeAuthHeader(testUser))
           .expect(200)
           .expect(res => {
             expect(res.body.title).to.eql(expectedThing.title)
@@ -207,6 +211,7 @@ describe('Things Endpoints', function() {
         const thingId = 123456
         return supertest(app)
           .get(`/api/things/${thingId}/reviews`)
+          .set('Authorization', helpers.makeAuthHeader(testUsers[0]))
           .expect(404, { error: `Thing doesn't exist` })
       })
     })

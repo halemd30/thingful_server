@@ -8,6 +8,7 @@ describe('Reviews Endpoints', function() {
   const {
     testThings,
     testUsers,
+    testReviews,
   } = helpers.makeThingsFixtures()
 
   before('make knex instance', () => {
@@ -30,10 +31,11 @@ describe('Reviews Endpoints', function() {
         db,
         testUsers,
         testThings,
+        testReviews
       )
     )
-
-    it(`creates an review, responding with 201 and the new review`, function() {
+    // ERROR insert into 'thingful_reviews' violates foreign key constraint 'thingful_reviews_thing_id_fkey'
+    it(`creates a review, responding with 201 and the new review`, function() {
       this.retries(3)
       const testThing = testThings[0]
       const testUser = testUsers[0]
